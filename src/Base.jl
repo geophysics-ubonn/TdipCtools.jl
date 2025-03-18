@@ -37,15 +37,14 @@ tau_grid : 1D grid of predefined relaxation times
 """
 function createMatrixForwardOperator(
     timesteps::Vector{Float64},
-    tau_grid::Vector{Float64},
-    gamma::Float64
+    tau_grid::Vector{Float64}
 )::Matrix{Float64}
 
     G = zeros(Float64, (length(timesteps), length(tau_grid)))
     for (i, t) in enumerate(timesteps)
         G[i, :] = exp.(-t ./ tau_grid)
     end
-    return G # * gamma
+    return G
 end
 
 """
@@ -83,11 +82,10 @@ timesteps : Timesteps of measured data (transient)
 function decompositionResponseTimeDomain(
     m::Vector{Float64},
     tau_grid::Vector{Float64},
-    timesteps::Vector{Float64},
-    gamma::Float64
+    timesteps::Vector{Float64}
 )::Vector{Float64}
 
-    G = createMatrixForwardOperator(timesteps, tau_grid, gamma)
+    G = createMatrixForwardOperator(timesteps, tau_grid)
     return G * exp.(m)
 end
 

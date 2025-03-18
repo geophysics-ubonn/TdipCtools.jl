@@ -10,7 +10,7 @@ function bench()
 
     Cinv = Matrix{Float64}(I, length(d), length(d)) * 1e5
     tau_grid = createTauGrid(timesteps, 1.0, 25)
-    G = createMatrixForwardOperator(timesteps, tau_grid, 1.5)
+    G = createMatrixForwardOperator(timesteps, tau_grid)
 
     m0 = -6 * log.(ones(length(tau_grid)))
 

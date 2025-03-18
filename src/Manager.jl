@@ -34,7 +34,7 @@ function debyeManager!(
 )::Nothing
 
     manager.tau_grid = createTauGrid(manager.timesteps, 1.5, 30)
-    manager.G = createMatrixForwardOperator(manager.timesteps, manager.tau_grid, 1.5)
+    manager.G = createMatrixForwardOperator(manager.timesteps, manager.tau_grid)
     m = -6 * ones(Float64, length(manager.tau_grid))
     (manager.m, manager.rmse, manager.lambda) = debyeDecomposition(m, manager.d, manager.G, manager.Cinv,
         lambda=lambda, max_iter=1000)
@@ -46,7 +46,7 @@ function occamManager!(
 )::Nothing
 
     manager.tau_grid = createTauGrid(manager.timesteps, 1.5, 30)
-    manager.G = createMatrixForwardOperator(manager.timesteps, manager.tau_grid, 1.5)
+    manager.G = createMatrixForwardOperator(manager.timesteps, manager.tau_grid)
     m = -6 * ones(Float64, length(manager.tau_grid))
     (manager.m, manager.rmse, manager.lambda) = occamDebyeDecomposition(m, manager.d, manager.G,
         manager.Cinv, max_iter=100)

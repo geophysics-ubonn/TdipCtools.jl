@@ -6,7 +6,7 @@ using BenchmarkTools
    d = debyeResponseTimeDomain(timesteps, 1.0, test_relaxation_time)
    Cinv = Matrix{Float64}(I, length(d), length(d)) * 1e5
    tau_grid = createTauGrid(timesteps, 1.0, 25)
-   G = createMatrixForwardOperator(timesteps, tau_grid, 1.5)
+   G = createMatrixForwardOperator(timesteps, tau_grid)
 
    m0 = -6 * ones(length(tau_grid))
    @time m, rmse, lambda = debyeDecomposition(m0, d, G, Cinv, max_iter=1000, lambda=10.0)

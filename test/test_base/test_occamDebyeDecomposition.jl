@@ -21,7 +21,7 @@ Nsamples = 100
         # inversion
         Cinv = Matrix{Float64}(I, (length(d), length(d))) .* (std .^ -2)
         tau_grid = createTauGrid(timesteps, 1.5, 25)
-        G = createMatrixForwardOperator(timesteps, tau_grid, gamma)
+        G = createMatrixForwardOperator(timesteps, tau_grid)
         m0 = -6 * ones(length(tau_grid))
 
         (m, rmse, lambda) = occamDebyeDecomposition(m0, d, G, Cinv)
@@ -61,7 +61,7 @@ end
         # inversion
         Cinv = Matrix{Float64}(I, (length(d), length(d))) .* (std .^ -2)
         tau_grid = createTauGrid(timesteps, 1.5, 25)
-        G = createMatrixForwardOperator(timesteps, tau_grid, gamma)
+        G = createMatrixForwardOperator(timesteps, tau_grid)
         m0 = -6 * ones(length(tau_grid))
 
         (m, rmse, lambda) = occamDebyeDecomposition(m0, d, G, Cinv)
