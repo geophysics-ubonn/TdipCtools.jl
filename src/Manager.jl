@@ -6,6 +6,7 @@ mutable struct Manager
     G::Union{Matrix{Float64},Nothing}
     tau_grid::Union{Vector{Float64},Nothing}
     frequencies::Union{Vector{Float64},Nothing}
+    spectrum::Union{Vector{ComplexF64},Nothing}
     lambda::Union{Float64,Nothing}
     rmse::Union{Float64,Nothing}
     R0::Union{Float64,Nothing}
@@ -23,7 +24,7 @@ function initializeManager(
     R0::Float64=1.0
 )::Manager
 
-    manager = Manager(d, timesteps, Cinv, fill(nothing, 7)...)
+    manager = Manager(d, timesteps, Cinv, fill(nothing, 8)...)
     manager.R0 = R0
     return manager
 end
@@ -56,13 +57,15 @@ end
 function initializeTomoManager(
     d::Matrix{Float64},
     timesteps::Matrix{Float64},
-    Cinv::Array{Float64,3}
+    Cinv::Array{Float64,3},
+    R0::Vector{Float64}
 )::TomoManager
 
     managers = Manager[]
     for i in 1:size(d, 2)
-        push!(managers, Manager(d[:, i], timesteps[:, i],
-            Cinv[:, :, i], fill(nothing, 7)...))
+        # push!(managers, Manager(d[:, i], timesteps[:, i],
+        #     Cinv[:, :, i], fill(nothing, 7)...))
+        push!(managers, initializeManager(d[:, i], timesteps[:, i], Cinv[:, :, i], R0=R0[i]))
     end
     return TomoManager(managers, length(managers))
 end
@@ -84,8 +87,21 @@ function spectrumManager(
     manager::Manager
 )::Vector{ComplexF64}
 
-    return decompositionResponseFrequencyDomain(2 * pi * manager.frequencies,
+    spectrum = decompositionResponseFrequencyDomain(2 * pi * manager.frequencies,
                 exp.(manager.m), manager.tau_grid, manager.R0)
+    manager.spectrum = spectrum
+    return spectrum
+end
+
+function spectrumTomoManager(
+    tomo_manager::TomoManager
+)::Matrix{ComplexF64}
+
+    spectra = zeros(ComplexF64, (tomo_manager.size, length(tomo_manager.managers[1].frequencies)))
+    for (i, manager) in enumerate(tomo_manager.managers)
+        spectra[i, :] .= spectrumManager(manager)
+    end
+    return spectra
 end
 
 function setFrequenciesManager!(

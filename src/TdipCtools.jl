@@ -31,5 +31,6 @@ export occamTomoManager!
 export setFrequenciesManager!
 export setFrequenciesTomoManager!
 export spectrumManager
+export spectrumTomoManager
 
 end # module TdipCtools

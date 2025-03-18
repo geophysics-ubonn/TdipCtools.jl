@@ -64,6 +64,7 @@ end
     tomo_d = []
     tomo_Cinv = []
     tomo_t = []
+    tomo_r0 = Float64[]
 
     for i = 1:100
         noise = Normal(0, std)
@@ -74,14 +75,20 @@ end
         push!(tomo_d, d)
         push!(tomo_Cinv, Cinv)
         push!(tomo_t, timesteps)
+        push!(tomo_r0, 1.0)
     end
 
     tomo_d = cat(tomo_d..., dims=2)
     tomo_Cinv = cat(tomo_Cinv..., dims=3)
     tomo_t = cat(tomo_t..., dims=2)
 
-    tomo_manager = initializeTomoManager(tomo_d, tomo_t, tomo_Cinv)
+    tomo_manager = initializeTomoManager(tomo_d, tomo_t, tomo_Cinv, tomo_r0)
     @time debyeTomoManager!(tomo_manager, lambda=10.0)
+
+    freqs = 10.0 .^ (range(-2, 2, 10))
+    setFrequenciesTomoManager!(tomo_manager, freqs)
+    spectra = spectrumTomoManager(tomo_manager)
+    @test typeof(tomo_manager.managers[1].spectrum) == Vector{ComplexF64}
 
     # for manager = tomo_manager.managers
     #     @test abs(argmin(abs.(test_relaxation_time .- manager.tau_grid)) - argmax(exp.(manager.m))) < 3
@@ -102,6 +109,7 @@ end
     tomo_d = []
     tomo_Cinv = []
     tomo_t = []
+    tomo_r0 = Float64[]
 
     for i = 1:100
         d = debyeResponseTimeDomain(timesteps, gamma, test_relaxation_time)
@@ -112,13 +120,14 @@ end
         push!(tomo_d, d)
         push!(tomo_Cinv, Cinv)
         push!(tomo_t, timesteps)
+        push!(tomo_r0, 1.0)
     end
 
     tomo_d = cat(tomo_d..., dims=2)
     tomo_Cinv = cat(tomo_Cinv..., dims=3)
     tomo_t = cat(tomo_t..., dims=2)
 
-    tomo_manager = initializeTomoManager(tomo_d, tomo_t, tomo_Cinv)
+    tomo_manager = initializeTomoManager(tomo_d, tomo_t, tomo_Cinv, tomo_r0)
     @time occamTomoManager!(tomo_manager)
 
     # for manager = tomo_manager.managers
