@@ -1,3 +1,22 @@
+"""
+This function calculates the root mean square error and returns its value.
+
+Parameters:
+```
+f : forward response
+d : data
+Cinv : Inverse data covariance matrix of size (length(d), length(d)).
+```
+
+Example:
+```
+f = Float64[1.0, 2.0, 3.0]
+d = Float64[1.0, 1.0, 3.0]
+std = Float64[0.1, 0.2, 0.3]
+Cinv = Matrix{Float64}(I, (length(d), length(d))) .* (std.^(-2))
+rmse = calculateRmse(f, d, Cinv)
+```
+"""
 function calculateRmse(
     f::Vector{Float64},
     d::Vector{Float64},
@@ -7,6 +26,15 @@ function calculateRmse(
     return sqrt(((f - d)' * Cinv * (f - d)) / length(f))
 end
 
+"""
+This function creates the matrix forward operator for the time domain forward calculation.
+
+Parameters:
+```
+timesteps : Timesteps of measured data (transient)
+tau_grid : 1D grid of predefined relaxation times
+```
+"""
 function createMatrixForwardOperator(
     timesteps::Vector{Float64},
     tau_grid::Vector{Float64},
@@ -20,6 +48,16 @@ function createMatrixForwardOperator(
     return G # * gamma
 end
 
+"""
+This function creates a 1D grid of relaxation times for a given transient.
+
+Parameters:
+```
+timesteps : Timesteps of measured data (transient)
+extend : log10 decades to extend the relaxation time grid to the left and right of the timesteps
+points_per_decade : number of grid points per log10 decade
+```
+"""
 function createTauGrid(
     timesteps::Vector{Float64},
     extend::Float64,
@@ -32,6 +70,16 @@ function createTauGrid(
     return 10.0 .^ (range(tau_min, tau_max, ntau))
 end
 
+"""
+Returns the time domain response of the debye decomposition.
+
+Parameter:
+```
+m : log relaxation time distribution
+tau_grid : grid of relaxation times
+timesteps : Timesteps of measured data (transient)
+```
+"""
 function decompositionResponseTimeDomain(
     m::Vector{Float64},
     tau_grid::Vector{Float64},
@@ -43,6 +91,17 @@ function decompositionResponseTimeDomain(
     return G * exp.(m)
 end
 
+"""
+Returns the frequency domain response of the debye decomposition.
+
+Parameters:
+```
+omega : angular frequencies of interest
+gamma : relaxation time distribution [Ohm] = chargagilities [-] * dc resistance [Ohm]
+tau_grid : grid of relaxation times
+R0 : dc resistance
+```
+"""
 function decompositionResponseFrequencyDomain(
     omega::Vector{Float64},
     gamma::Vector{Float64},
@@ -61,6 +120,16 @@ function decompositionResponseFrequencyDomain(
     return Z
 end
 
+"""
+Returns the Debye response in the time domain.
+
+Parameters:
+```
+timesteps : Timesteps of measured data (transient)
+gamma : chargeability * dc resistance
+tau : relaxation time
+```
+"""
 function debyeResponseTimeDomain(
     timesteps::Vector{Float64},
     gamma::Float64,
@@ -70,7 +139,23 @@ function debyeResponseTimeDomain(
     return gamma * exp.(-timesteps / tau)
 end
 
-function debyeDecomposition(m0::Vector{Float64},
+"""
+Perform the debye decomposition with a fixed regulairzation strength.
+
+Parameters:
+```
+m0 : initial model
+d : data (transient)
+G : result of createMatrixForwardOperator
+Cinv : Inverse data covariance matrix
+lambda : regularization strength
+eta : step length for gauss newton scheme
+tune_eta : Adaptive tuning of the gauss newton step length
+max_iter : maximum number of iterations
+```
+"""
+function debyeDecomposition(
+    m0::Vector{Float64},
     d::Vector{Float64},
     G::Matrix{Float64},
     Cinv::Union{SparseMatrixCSC,Matrix};
@@ -235,6 +320,18 @@ function gaussNewtonUpdate!(
     return nothing
 end
 
+"""
+Perform the debye decomposition with a tuned regularization strength.
+
+Parameters:
+```
+m0 : initial model
+d : data (transient)
+G : result of createMatrixForwardOperator
+Cinv : Inverse data covariance matrix
+max_iter : maximum number of iterations
+```
+"""
 function occamDebyeDecomposition(
     m0::Vector{Float64},
     d::Vector{Float64},
