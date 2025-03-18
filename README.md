@@ -9,3 +9,6 @@ This repository implements the conversion scheme for time-domain induced polariz
 3. Navigate to the cloned directory.
 4. Open the Julia REPL and type ] to open the package manager.
 5. Activate a local environment for testing by typing ```activate .``` , or add the module ```TdipCtools``` to your active environment by typing ```add .```
+
+### Examples
+Examples on how to use the module can be found in the examples directory.
