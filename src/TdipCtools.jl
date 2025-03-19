@@ -5,6 +5,7 @@ using LinearAlgebra
 using Statistics
 using SparseArrays
 using LinearSolve
+using DelimitedFiles
 
 greet() = print("Hello World!")
 
@@ -34,5 +35,6 @@ export spectrumManager
 export spectrumTomoManager
 
 include("Interface.jl")
+export convert_files
 
 end # module TdipCtools

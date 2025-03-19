@@ -4,7 +4,12 @@ using Plots
 using Test
 using Random
 using Distributions
+using DelimitedFiles
 import Logging
+
+# run Interface.jl tests
+include("test_interface/create_files.jl")
+include("test_interface/test_interface.jl")
 
 # run Base.jl tests
 include("benchmark.jl")
