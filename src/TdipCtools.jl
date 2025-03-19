@@ -33,4 +33,6 @@ export setFrequenciesTomoManager!
 export spectrumManager
 export spectrumTomoManager
 
+include("Interface.jl")
+
 end # module TdipCtools
