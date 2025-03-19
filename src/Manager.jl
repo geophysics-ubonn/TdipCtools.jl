@@ -20,9 +20,13 @@ end
 function initializeManager(
     d::Vector{Float64},
     timesteps::Vector{Float64},
-    Cinv::Matrix{Float64};
+    Cinv::Union{Matrix{Float64},Vector{Float64},Float64};
     R0::Float64=1.0
 )::Manager
+
+    if typeof(Cinv) != Matrix{Float64}
+        Cinv = Matrix{Float64}(I, (length(d), length(d))) .* Cinv
+    end
 
     manager = Manager(d, timesteps, Cinv, fill(nothing, 8)...)
     manager.R0 = R0
