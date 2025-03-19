@@ -15,7 +15,7 @@
     d = d .+ noise_realization
     Cinv = Matrix{Float64}(I, (length(d), length(d))) .* (std^-2)
 
-    manager = initializeManager(d, timesteps, Cinv)
+    manager = initializeManager(d, timesteps, Cinv, R0=R0)
     @test typeof(manager) == Manager
     debyeManager!(manager, lambda=10.0)
 
@@ -45,7 +45,7 @@ end
     d = d .+ noise_realization
     Cinv = Matrix{Float64}(I, (length(d), length(d))) .* (std^-2)
 
-    manager = initializeManager(d, timesteps, Cinv)
+    manager = initializeManager(d, timesteps, Cinv, R0=R0)
     occamManager!(manager)
     @test abs(argmin(abs.(test_relaxation_time .- manager.tau_grid)) - argmax(exp.(manager.m))) < 3
 end
