@@ -181,6 +181,38 @@ function debyeDecomposition(
     return m, rmse, lambda
 end
 
+function estimateStandardDeviation(
+    m::Vector{Float64},
+    G::Matrix{Float64},
+    Cinv::Matrix{Float64},
+    lambda::Float64,
+    omegas::Vector{Float64},
+    tau_grid::Vector{Float64},
+    std_R0::Float64
+)::Vector{ComplexF64}
+
+    J = Matrix{Float64}(undef, size(G))
+    evaluateJacobian!(J, G, m)
+    R = initializeSmoothingOperator(length(m))
+    Hessian = J' * Cinv * J + lambda * R
+
+    Cm = inv(Hessian)
+    Ce = Cm * J' * Cinv * J * Cm
+    Jfd = Matrix{ComplexF64}(undef, (2, size(Hessian, 1)))
+
+    errorZ = ComplexF64[]
+    for omega in omegas
+        # set up Jfd for angular frequency omega
+        for (i, tau) in enumerate(tau_grid)
+            Jfd[1, i] = -tau * (omega * tau)^2 / (1 + (omega * tau)^2)
+            Jfd[2, i] = -tau * (omega * tau) / (1 + (omega * tau)^2)
+        end
+        covZ = std_R0^2 .* Float64[1.0 0.0; 0.0 0.0] + Jfd * Ce * Jfd'
+        push!(errorZ, sqrt(covZ[1, 1]) + 1im * sqrt(covZ[2, 2]))
+    end
+    return errorZ
+end
+
 function evaluateJacobian!(
     J::Matrix{Float64},
     G::Matrix{Float64},

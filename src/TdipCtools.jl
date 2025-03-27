@@ -17,6 +17,7 @@ export decompositionResponseFrequencyDomain
 export decompositionResponseTimeDomain
 export debyeDecomposition
 export decompositionResponseFrequencyDomain
+export estimateStandardDeviation
 export occamDebyeDecomposition
 
 include("Manager.jl")
