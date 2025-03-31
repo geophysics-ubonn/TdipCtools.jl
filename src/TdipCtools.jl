@@ -33,6 +33,7 @@ export setFrequenciesManager!
 export setFrequenciesTomoManager!
 export spectrumManager
 export spectrumTomoManager
+export errorManager!
 
 include("Interface.jl")
 export convert_files

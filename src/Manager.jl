@@ -10,6 +10,7 @@ mutable struct Manager
     lambda::Union{Float64,Nothing}
     rmse::Union{Float64,Nothing}
     R0::Union{Float64,Nothing}
+    std::Union{Vector{ComplexF64},Nothing}
 end
 
 mutable struct TomoManager
@@ -28,7 +29,7 @@ function initializeManager(
         Cinv = Matrix{Float64}(I, (length(d), length(d))) .* Cinv
     end
 
-    manager = Manager(d, timesteps, Cinv, fill(nothing, 8)...)
+    manager = Manager(d, timesteps, Cinv, fill(nothing, 9)...)
     manager.R0 = R0
     return manager
 end
@@ -61,7 +62,7 @@ end
 function initializeTomoManager(
     d::Matrix{Float64},
     timesteps::Matrix{Float64},
-    Cinv::Array{Float64,3},
+    Cinv::Union{Array{Float64,3},Matrix{Float64},Vector{Float64}},
     R0::Vector{Float64}
 )::TomoManager
 
@@ -69,7 +70,13 @@ function initializeTomoManager(
     for i in 1:size(d, 2)
         # push!(managers, Manager(d[:, i], timesteps[:, i],
         #     Cinv[:, :, i], fill(nothing, 7)...))
-        push!(managers, initializeManager(d[:, i], timesteps[:, i], Cinv[:, :, i], R0=R0[i]))
+        if length(size(Cinv)) == 3
+            push!(managers, initializeManager(d[:, i], timesteps[:, i], Cinv[:, :, i], R0=R0[i]))
+        elseif length(size(Cinv)) == 2
+            push!(managers, initializeManager(d[:, i], timesteps[:, i], Cinv[:, i], R0=R0[i]))
+        else
+            push!(managers, initializeManager(d[:, i], timesteps[:, i], Cinv[i], R0=R0[i]))
+        end
     end
     return TomoManager(managers, length(managers))
 end
@@ -87,12 +94,29 @@ function debyeTomoManager!(
     return nothing
 end
 
+function errorManager!(
+    manager::Manager,
+    std_R0::Float64
+)::Vector{ComplexF64}
+
+    errorZ = estimateStandardDeviation(
+        manager.m,
+        manager.G,
+        manager.Cinv,
+        manager.lambda,
+        manager.frequencies * 2 * pi,
+        manager.tau_grid,
+        std_R0
+    )
+    manager.std = errorZ
+end
+
 function spectrumManager(
     manager::Manager
 )::Vector{ComplexF64}
 
     spectrum = decompositionResponseFrequencyDomain(2 * pi * manager.frequencies,
-                exp.(manager.m), manager.tau_grid, manager.R0)
+        exp.(manager.m), manager.tau_grid, manager.R0)
     manager.spectrum = spectrum
     return spectrum
 end

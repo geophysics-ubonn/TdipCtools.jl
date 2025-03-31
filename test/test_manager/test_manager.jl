@@ -25,6 +25,7 @@
     @test manager.frequencies == Float64[1.0, 10.0]
 
     spectrumManager(manager)
+    errorManager!(manager, 1.0)
     # println(spectrum)
 end
 
