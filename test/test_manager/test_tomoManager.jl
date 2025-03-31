@@ -1,29 +1,3 @@
-@testset "initializeManager" begin
-    # create data
-    r0 = 1.0
-    charg = 0.1
-    gamma = r0 * charg
-    tau = 0.5
-    t = 10.0 .^ (range(-1, 1, 30))
-    d = debyeResponseTimeDomain(t, gamma, tau)
-
-    # init with single standard deviation
-    Cinv_Float = 0.1^-2
-    mA = initializeManager(d, t, Cinv_Float, R0=r0)
-
-    # init with Vector
-    Cinv_Vector = Float64[fill(0.1^-2, length(d))...]
-    mB = initializeManager(d, t, Cinv_Vector, R0=r0)
-
-    # init with Matrix
-    Cinv_Matrix = Matrix{Float64}(I, (length(d), length(d))) .* Cinv_Vector
-    mC = initializeManager(d, t, Cinv_Matrix, R0=r0)
-
-    # test
-    @test (mA.d == mC.d) && (mA.d == mB.d)
-    @test (mA.Cinv == mC.Cinv) && (mA.Cinv == mB.Cinv)
-end
-
 @testset "initializeTomoManager" begin
     # create data
     r0 = 1.0

@@ -137,6 +137,11 @@ function setFrequenciesManager!(
     frequencies::Vector{Float64}
 )::Nothing
 
+    if (minimum(frequencies) < (1 / maximum(manager.tau_grid))
+        ||
+        maximum(frequencies) > (1 / minimum(manager.tau_grid)))
+        @warn "Set frequencies are outside the sampled time frame!"
+    end
     manager.frequencies = frequencies
     return nothing
 end
