@@ -4,7 +4,7 @@
     charg = 0.1
     gamma = r0 * charg
     tau = 0.5
-    t = 10.0 .^ (range(-1, 1, 30))
+    t = 10.0 .^ (range(-1, 1, 300))
     d = debyeResponseTimeDomain(t, gamma, tau)
 
     ### TEST INITIALIZATION ###
@@ -23,11 +23,11 @@
 
     ### TEST DEBYE DECOMPOSITION ###
     @test isnothing(manager.m)
-    debyeManager!(manager, lambda=1.0)
+    debyeManager!(manager, lambda=100.0)
     @test !isnothing(manager.m)
     @test !isnothing(manager.tau_grid)
     @test manager.G == createMatrixForwardOperator(t, manager.tau_grid)
-    @test manager.lambda == 1.0
+    @test manager.lambda == 100.0
     @test abs(manager.tau_grid[argmax(manager.m)] - tau) < 0.5
 
     ### TEST OCCAM DECOMPOSITION ###

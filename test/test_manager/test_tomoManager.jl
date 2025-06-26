@@ -4,7 +4,7 @@
     charg = 0.1
     gamma = r0 * charg
     tau = 0.5
-    t = 10.0 .^ (range(-1, 1, 30))
+    t = 10.0 .^ (range(-1, 1, 300))
     d = debyeResponseTimeDomain(t, gamma, tau)
 
     # controll single manager
